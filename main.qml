@@ -17,11 +17,23 @@
 
 import QtQuick 2.9
 import org.asteroid.controls 1.0
+import org.nemomobile.systemsettings 1.0
 import Nemo.KeepAlive 1.1
 
 Application {
     centerColor: "#b04d1c"
     outerColor: "#421c0a"
+    property int startBrightness: -1
+
+    DisplaySettings {
+        id: displaySettings
+        onBrightnessChanged: {
+            if (startBrightness == -1) {
+                startBrightness = brightness
+                displaySettings.brightness = displaySettings.maximumBrightness
+            }
+        }
+    }
 
     Rectangle {
         id: whiteOverlay
@@ -50,12 +62,15 @@ Application {
                 onOffAnimation.from = 1
                 onOffAnimation.to = 0
                 onOffAnimation.start()
+                displaySettings.brightness = startBrightness
             } else {
                 onOffAnimation.from = 0
                 onOffAnimation.to = 1
                 onOffAnimation.start()
+                displaySettings.brightness = displaySettings.maximumBrightness
             }
         }
     }
     Component.onCompleted: DisplayBlanking.preventBlanking = true
+    Component.onDestruction: displaySettings.brightness = startBrightness
 }
